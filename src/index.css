@@ -19,3 +19,20 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+.map-box {
+  height: 100vh;
+}
+
+.top-bar {
+  background-color: rgba(0, 0, 0, 0.73);
+  color: #fff;
+  padding: 10px 20px;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  margin: 12px;
+  border-radius: 5px;
+}
