@@ -36,3 +36,7 @@ body {
   margin: 12px;
   border-radius: 5px;
 }
+
+.mapboxgl-ctrl-geocoder ul > li > a {
+  color: #242424 !important;
+}
