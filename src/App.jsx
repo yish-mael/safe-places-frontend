@@ -13,16 +13,15 @@ function App() {
   const [lon, setLon] = useState(-95.3698);
   const [lat, setLat] = useState(29.7604);
   const [zoom, setZoom] = useState(10);
-  const [details, setDetails] = useState({name: "Huston"});
-
+  // const [safetyResult, setSafetyResult] = useState({busy: 0, covid: 0, population: 0, deaths: 0, safety: "..."});
 
   async function calculateRisk(search){
 
-    try{
+    try
+    {
       const harrisResponse = await axios.get("http://127.0.0.1:8000/api/data");
       const busyResponse = await axios.get("http://127.0.0.1:8000/api/busy?address="+search.address);
-      // console.log(search);
-      // console.log(harrisResponse.data.data.features);
+
       let activeCovid = 0;
       let population = 0;
       let covidDeaths = 0;
@@ -35,6 +34,8 @@ function App() {
 
       for(let i = 0; i < harrisFeatures.length; i++ )
       {
+        // console.log(harrisFeatures[i].properties.ZIP);
+        // console.log(search.zip);
         if(harrisFeatures[i].properties.ZIP == search.zip)
         {
           activeCovid = harrisFeatures[i].properties.ActiveCases;
@@ -50,23 +51,22 @@ function App() {
         }
       }
 
-      
-      
       return {
         busy: busyResponse?.data?.populartimes[day-1]?.data[hours],
         covid: activeCovid,
         population: population,
         deaths: covidDeaths,
         safety: safety,
-      }
-      //setBusyStatus(busyResponse?.data?.populartimes[day-1]?.data[hours])
-    }catch(e){
+      };
+    }
+    catch(e)
+    {
       console.log(e);
     }
 
   }
 
-  async function generateMap( lon, lat, zoom, details) {
+  async function generateMap( lon, lat, zoom) {
 
     const map = new mapbox.Map({
       container: 'map',
@@ -105,37 +105,56 @@ function App() {
     });
 
     geocoder.on('result', async(event) => {
-      const calcResult = await calculateRisk({address: event?.result?.place_name, zip: event.result.context[0].text});
+
+      let zip = event.result.context[0].text;
+
+      if(event.result.context.length > 5){
+        zip = event.result.context[1].text
+      }
+
       map.getSource('single-point').setData(event.result.geometry);
-      // console.log("hello: ", event.result)
-
-      const popup = new mapbox.Popup({ closeOnClick: false })
-                    .setHTML(`<div>
-                               ${calcResult.safety}
-                                <p>
-                                  <h6>${event.result.text}</h6>
-                                  ${event.result.place_name}
-                                  <br />
-                                  <span style='font-size: 13px;'><b>Population: </b> ${calcResult.population}</span>
-                                  <br />
-                                  <span style='font-size: 13px;'><b>Busy:</b> ${calcResult.busy}</b>% relative to peak period.</span>
-                                  <br />
-                                  <span style='font-size: 13px;'><b>Active Covid: </b> ${calcResult.covid}</span>
-                                  <br />
-                                  <span style='font-size: 13px;'><b>Covid Deaths: </b> ${calcResult.deaths}</span>
-                                </p>
-                              </div>`)
+      
+      const popup = new mapbox.Popup({closeOnClick: false})
+                    .setHTML(`<div><b>Loading results ...</b></div>`)
+                    .setLngLat(event.result.center)
                     .addTo(map);
-      new mapbox.Marker().setLngLat(event.result.center).addTo(map).setPopup(popup);
-    });
-    new mapbox.Marker().setLngLat([lon, lat]).addTo(map);
 
+      new mapbox.Marker().setLngLat(event.result.center).addTo(map).setPopup(popup);
+      const calcResult = await calculateRisk({address: event?.result?.place_name, zip: zip});
+
+      if(calcResult)
+      {
+        popup.setHTML(`<div>
+                  ${calcResult.safety}
+                  <br /><br />  
+                  <p>
+                    <span style='font-size: 13px;'><b>Location: </b>${event.result.place_name}.</span>
+                    <br />
+                    <span style='font-size: 13px;'><b>Busy:</b> ${calcResult.busy}</b>% (relative to peak period).</span>
+                    <br />
+                    <span style='font-size: 13px;'><b>Population: </b> ${calcResult.population}</span>
+                     | 
+                    <span style='font-size: 13px;'><b>Active Covid: </b> ${calcResult.covid}</span>
+                     | 
+                    <span style='font-size: 13px;'><b>Covid Deaths: </b> ${calcResult.deaths}</span>
+                  </p>
+                </div>`);
+      }
+      else
+      {
+        popup.setHTML("<div><b>No data for this locaiton.</b></div>");
+      }
+
+    });
+
+    new mapbox.Marker().setLngLat([lon, lat]).addTo(map);
+    
   }
 
 
   useEffect(() => {
-    generateMap(lon, lat, zoom, details);
-  }, [lon, lat, zoom, details]);
+    generateMap(lon, lat, zoom);
+  }, [lon, lat, zoom]);
 
  
   return (
