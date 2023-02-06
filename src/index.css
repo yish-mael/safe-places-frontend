@@ -40,3 +40,12 @@ body {
 .mapboxgl-ctrl-geocoder ul > li > a {
   color: #242424 !important;
 }
+
+.mapboxgl-popup {
+  max-width: 350px !important;
+  min-width: 200px !important;
+}
+
+.mapboxgl-popup-content {
+  padding: 20px;
+}
