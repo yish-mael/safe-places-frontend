@@ -25,7 +25,7 @@ function App() {
       let activeCovid = 0;
       let population = 0;
       let covidDeaths = 0;
-      let safety = "";
+      let safety = "<span class='bg-secondary text-white px-3 py-1 fw-bold rounded-pill'>N/A</span>";
       
       const d = new Date();
       const day = d.getDay();
@@ -50,9 +50,11 @@ function App() {
           else safety = ` <span class='bg-warning text-white px-3 py-1 fw-bold rounded-pill'>Medium Risk</span>`;
         }
       }
+      let busyTime = "N/A";
+      if(busyResponse.data.populartimes) busyTime = busyResponse.data.populartimes[day-1].data[hours] ;
 
       return {
-        busy: busyResponse?.data?.populartimes[day-1]?.data[hours],
+        busy: busyTime,
         covid: activeCovid,
         population: population,
         deaths: covidDeaths,
