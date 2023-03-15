@@ -127,6 +127,7 @@ function App() {
     }
     catch(e)
     {
+      popup.setHTML("<div><b>No data within this radius.</b></div>");
       console.log(e);
     }
     
