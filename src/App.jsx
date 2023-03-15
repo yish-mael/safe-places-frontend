@@ -1,6 +1,6 @@
 import 'mapbox-gl/dist/mapbox-gl.css'
 import 'mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mapbox from 'mapbox-gl'
 import MapboxGeocoder from 'mapbox-gl-geocoder';
 import axios from 'axios';
@@ -79,7 +79,7 @@ function App() {
 
       }
       // console.log("here");
-      popup.setHTML(`<b>Current Location.</b>`)
+      popup.setHTML(`<b>Current Location.</b> <br> <b>Route: <a href="https://www.google.com/maps/dir/${store.address.replace(/\s+/g, '+')}/${loc.replace(/\s+/g, '+')}/" target="_blank">Click Here</a></b>`)
       popup1.setHTML(`<div>
       ${store.safety}
       <br /><br />  
@@ -97,7 +97,7 @@ function App() {
       </div>`);
       
       new mapbox.Marker({ "color": "#b40219" }).setLngLat([store.location.lng, store.location.lat]).setPopup(popup1).addTo(curMap);
-      popup.remove();
+      // popup.remove();
       popup1.addTo(curMap);
       curMap.setCenter([store.location.lng, store.location.lat]).setZoom(14);
 
