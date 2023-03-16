@@ -215,15 +215,15 @@ function App() {
         }
       });
 
-      // map.addControl(
-      //   new mapbox.GeolocateControl({
-      //     positionOptions: {
-      //     enableHighAccuracy: true
-      //     },
-      //     trackUserLocation: true,
-      //     showUserHeading: true
-      //     }
-      //   ));
+      map.addControl(
+        new mapbox.GeolocateControl({
+          positionOptions: {
+          enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+          }
+        ));
           
     });
 
@@ -261,6 +261,7 @@ function App() {
                      | 
                     <span style='font-size: 13px;'><b>Covid Deaths: </b> ${calcResult.deaths}</span>
                   </p>
+                  <b>Current Location.</b> <br> <b>Route: <a href="https://www.google.com/maps/dir/${event.result.place_name.replace(/\s+/g, '+')}/${lat}+${lon}/" target="_blank">Click Here</a></b>
                 </div>`);
       }
       else
@@ -269,7 +270,6 @@ function App() {
       }
 
     });
-
     new mapbox.Marker( {"color": "#000000"}).setLngLat([lon, lat]).addTo(map);
 
     return map;
@@ -278,8 +278,12 @@ function App() {
 
 
   useEffect(() => {
-    generateMap(lon, lat, zoom);
-  }, [lon, lat, zoom]);
+    navigator.geolocation.getCurrentPosition(function(position) {
+      // setLon(position.coords.longitude);
+      // setLat(position.coords.latitude);
+      generateMap(position.coords.longitude, position.coords.latitude, zoom);
+    });
+  }, [zoom]);
 
  
   return (
