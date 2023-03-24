@@ -13,8 +13,8 @@ function App() {
   
   const zoom = 12;
   const geocoderRef = useRef(null);
-  const [lon, setLon] = useState(-95.3698);
-  const [lat, setLat] = useState(29.7604);
+  const [lon, setLon] = useState(null);
+  const [lat, setLat] = useState(null);
   const [display, setDisplay] = useState('d-none');
   const [geocoderD, setGeocoderD] = useState('');
 
@@ -68,7 +68,7 @@ function App() {
           if (entry.types?.[0] === "postal_code")  zipcode = entry.long_name;
         });
         
-        let risk = await calculateRisk({search: predictions[i].description, zip: zipcode});
+        let risk = await calculateRisk({address: predictions[i].description, zip: zipcode});
         
         if(risk.result < store.result){
           store = risk;
@@ -134,7 +134,7 @@ function App() {
   }
 
   async function calculateRisk(search){
-
+    console.log("Search Here ", search);
     try
     {
       const harrisResponse = await axios.get("http://127.0.0.1:8000/api/data");
@@ -173,6 +173,7 @@ function App() {
       }else{
         if(busyResponse?.data?.populartimes) busyTime = busyResponse?.data?.populartimes[day-1]?.data[hours] ;
       }
+      console.log("Here ", busyResponse);
       return {
         busy: busyTime,
         covid: activeCovid,
@@ -203,6 +204,7 @@ function App() {
       accessToken: import.meta.env.VITE_MAPBOX_TOKEN,
       mapboxgl: mapbox,
     });
+    
     geocoderRef.current.appendChild(geocoder.onAdd(map));
     
     map.on('load', () => {
@@ -270,8 +272,8 @@ function App() {
       }
 
     });
-    new mapbox.Marker( {"color": "#000000"}).setLngLat([lon, lat]).addTo(map);
 
+    new mapbox.Marker( {"color": "#000000"}).setLngLat([lon, lat]).addTo(map);
     return map;
     
   }
@@ -302,7 +304,7 @@ function App() {
 
             <div className="col-12">
               <label className="visually-hidden" htmlFor="inlineFormSelectPref">Search Type</label>
-              <select className="form-select form-select-sm" name='searchType' id="inlineFormSelect" onChange={(e) => { handleLocation(); if(display=='d-none'){ setDisplay('');  setGeocoderD('d-none') } else { setDisplay('d-none'); setGeocoderD(''); } }} >
+              <select className="form-select form-select-sm" name='searchType' id="inlineFormSelect" onChange={(e) => { handleLocation(); if(display=='d-none'){ setDisplay('');  setGeocoderD('d-none') } else { window.location.reload(false); } }} >
                 <option value="single">Single</option>
                 <option value="radius">Radius</option>
               </select>
